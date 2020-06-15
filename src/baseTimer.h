@@ -10,23 +10,23 @@ namespace TeensyTimerTool
 {
     class BaseTimer
     {
-     public:
-        template <typename T>
-        inline errorCode begin(callback_t callback, T period, bool start = true);
-        inline errorCode end() { return errorCode::notImplemented; }
-        inline errorCode stop() { return timerChannel->stop(); }
-        inline float getMaxPeriod() const;
+        public:
+            template <typename T>
+            inline errorCode begin(callback_t callback, T period, bool start = true);
+            inline errorCode end() { return errorCode::notImplemented; }
+            inline errorCode stop() { return timerChannel->stop(); }
+            inline float getMaxPeriod() const;
 
-        #if defined(ENABLE_ADVANCED_FEATURES)
-        ITimerChannel* getChannel() {return timerChannel;}
-        #endif
+            #if defined(ENABLE_ADVANCED_FEATURES)
+            ITimerChannel* getChannel() {return timerChannel;}
+            #endif
 
-     protected:
-        BaseTimer(TimerGenerator* generator, bool periodic);
+        protected:
+            BaseTimer(TimerGenerator* generator, bool periodic);
 
-        TimerGenerator* timerGenerator;
-        ITimerChannel* timerChannel;
-        bool isPeriodic;
+            TimerGenerator* timerGenerator;
+            ITimerChannel* timerChannel;
+            bool isPeriodic;
     };
 
 

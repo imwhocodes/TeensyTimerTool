@@ -62,7 +62,7 @@ namespace TeensyTimerTool
 
     void TCK_t::tick()
     {
-        digitalWriteFast(12,HIGH);
+        digitalWriteFast(12, HIGH);
         for(unsigned i = 0; i < maxTckChannels; i++)
         {
             if (channels[i] != nullptr )
@@ -70,7 +70,7 @@ namespace TeensyTimerTool
                 channels[i]->tick();
             }
         }
-        digitalWriteFast(12,LOW);
+        digitalWriteFast(12, LOW);
     }
 
 
