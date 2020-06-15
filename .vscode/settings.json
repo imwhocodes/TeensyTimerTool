@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.cps": "javascript",
+        "*.ini": "plaintext",
+        "__mutex_base": "cpp",
+        "memory": "cpp",
+        "mutex": "cpp",
+        "condition_variable": "cpp"
+    }
+}
