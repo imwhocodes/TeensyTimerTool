@@ -9,6 +9,7 @@ namespace TeensyTimerTool
         // Warnings
         periodOverflow=   -100,
         wrongType=        -101,
+        triggeredLate=    -102,
 
         //General errors
         argument =         100,

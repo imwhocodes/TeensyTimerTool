@@ -19,8 +19,8 @@ namespace TeensyTimerTool
 
         inline errorCode trigger(uint32_t) override;
         inline errorCode trigger(float) override;
-        inline void setPeriod(uint32_t) {}
-        inline float getMaxPeriod() override;
+        // inline errorCode setPeriod(uint32_t) {}
+        inline float getMaxPeriod() const override;
 
         bool isPeriodic;
 
@@ -115,7 +115,7 @@ namespace TeensyTimerTool
         return errorCode::OK;
     }
 
-    float PITChannel::getMaxPeriod()
+    float PITChannel::getMaxPeriod() const
     {
         return (float)0xFFFF'FFFE / clockFactor;
     }

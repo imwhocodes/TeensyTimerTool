@@ -9,6 +9,17 @@ namespace TeensyTimerTool
 {
     class TMRChannel : public ITimerChannel
     {
+
+        protected:
+            IMXRT_TMR_CH_t* regs;
+            callback_t** pCallback = nullptr;
+            float pscValue;
+            uint32_t pscBits;
+
+            inline errorCode _setCurrentPeriod(const uint16_t cnt);
+            inline void _setNextPeriod(const uint16_t cnt);
+
+
         public:
             inline TMRChannel(IMXRT_TMR_CH_t* regs, callback_t* cbStorage);
             inline virtual ~TMRChannel();
@@ -19,10 +30,11 @@ namespace TeensyTimerTool
             inline errorCode trigger(uint32_t tcnt) override;
             inline errorCode trigger(float tcnt) override;
 
-            inline float getMaxPeriod(void) override;
-            inline uint32_t getCurrentPeriod(void) override;
-            inline uint32_t getNextPeriod(void) override;
+            inline float getMaxPeriod(void) const override;
+            inline uint32_t getCurrentPeriod(void) const override;
+            inline uint32_t getNextPeriod(void) const override;
 
+            inline errorCode setPeriod(uint32_t us) override;
             inline errorCode setCurrentPeriod(uint32_t us) override;
             inline errorCode setNextPeriod(uint32_t us) override;
             
@@ -32,11 +44,7 @@ namespace TeensyTimerTool
             inline float_t counterToMicrosecond(const float_t cnt) const;
 
 
-        protected:
-            IMXRT_TMR_CH_t* regs;
-            callback_t** pCallback = nullptr;
-            float pscValue;
-            uint32_t pscBits;
+
     };
 
     // IMPLEMENTATION ==============================================
@@ -52,17 +60,18 @@ namespace TeensyTimerTool
     {
     }
 
-    errorCode TMRChannel::begin(callback_t cb, uint32_t tcnt, bool periodic)
-    {
-        return begin(cb, (float)tcnt, periodic);
-    }
-
     float_t TMRChannel::microsecondToCounter(const float_t us) const {
         return us * 150.0f / pscValue;
     }
 
     float_t TMRChannel::counterToMicrosecond(const float_t cnt) const {
         return cnt * pscValue / 150.0f;
+    }
+
+
+    errorCode TMRChannel::begin(callback_t cb, uint32_t tcnt, bool periodic)
+    {
+        return begin(cb, (float)tcnt, periodic);
     }
 
 
@@ -131,29 +140,42 @@ namespace TeensyTimerTool
 
     }
 
-    uint32_t TMRChannel::getCurrentPeriod(){
+    uint32_t TMRChannel::getCurrentPeriod() const {
         return counterToMicrosecond(regs->COMP1);
     }
 
-    uint32_t TMRChannel::getNextPeriod(){
+    uint32_t TMRChannel::getNextPeriod() const {
         return counterToMicrosecond(regs->CMPLD1);
     }
+
+    void TMRChannel::_setNextPeriod(const uint16_t cnt){
+        regs->CMPLD1 = cnt;
+    }
+
+    errorCode TMRChannel::_setCurrentPeriod(const uint16_t cnt){
+
+        regs->COMP1 = cnt;
+
+        //Do we need to wait some cycle for IP bus to update here / cache flush?
+
+        if(regs->CNTR > cnt){
+            //if counter alrready went over setted value force a triggering
+            regs->CNTR = cnt;
+            return errorCode::triggeredLate;
+        }
+
+        else{
+            return errorCode::OK;
+        }
+        
+    }
+
 
     errorCode TMRChannel::setCurrentPeriod(uint32_t us){
         const float_t t = microsecondToCounter(us);
 
         if(t <= 0xFFFF){
-            const uint16_t reload = (uint16_t)t;
-            regs->COMP1 = reload;
-
-            //Do we need to wait some cycle for IP bus to update here?
-
-            if(regs->CNTR > reload){
-                //no conter overflow, force comparison
-                regs->CNTR = reload;
-            }
-
-            return errorCode::OK;
+            return _setCurrentPeriod(t);
         }
         else{
             return errorCode::periodOverflow;
@@ -165,8 +187,7 @@ namespace TeensyTimerTool
         const float_t t = microsecondToCounter(us);
 
         if(t <= 0xFFFF){
-            const uint16_t reload = (uint16_t)t;
-            regs->CMPLD1 = reload;
+            _setNextPeriod(t);
             return errorCode::OK;
         }
         else{
@@ -175,13 +196,30 @@ namespace TeensyTimerTool
 
     }
 
+    errorCode TMRChannel::setPeriod(uint32_t us)
+    {
+        const float_t t = microsecondToCounter(us);
+
+        if(t <= 0xFFFF){
+            _setNextPeriod(t);
+            return _setCurrentPeriod(t);
+
+            
+        }
+        else{
+            return errorCode::periodOverflow;
+        }
+
+    }
+
+
     void TMRChannel::setPrescaler(uint32_t psc) // psc 0..7 -> prescaler: 1..128
     {
         pscValue = 1 << (psc & 0b0111);
         pscBits = 0b1000 | (psc & 0b0111);
     }
 
-    float TMRChannel::getMaxPeriod()
+    float TMRChannel::getMaxPeriod() const
     {
         return counterToMicrosecond(0xFFFE);
     }

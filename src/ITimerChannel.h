@@ -18,16 +18,17 @@ namespace TeensyTimerTool
             virtual errorCode trigger(uint32_t delay) = 0;
             virtual errorCode trigger(float delay) { return postError(errorCode::wrongType); }
 
-            virtual float getMaxPeriod(){ postError(errorCode::notImplemented); return 0;};
+            virtual float getMaxPeriod(void) const { postError(errorCode::notImplemented); return 0;};
 
+            virtual errorCode setPeriod(uint32_t microSeconds) { return postError(errorCode::notImplemented); }
             virtual errorCode setCurrentPeriod(uint32_t microSeconds) { return postError(errorCode::notImplemented); }
             virtual errorCode setNextPeriod(uint32_t microSeconds) { return postError(errorCode::notImplemented); }
 
-            virtual uint32_t getCurrentPeriod() { return 0; }
-            virtual uint32_t getNextPeriod() { return 0; }
+            virtual uint32_t getCurrentPeriod(void) const { return 0; }
+            virtual uint32_t getNextPeriod(void) const { return 0; }
 
-            virtual void start(){};
-            virtual errorCode stop() { return errorCode::OK; }
+            virtual void start(void){};
+            virtual errorCode stop(void) { return errorCode::OK; }
             inline void setCallback(callback_t);
 
 

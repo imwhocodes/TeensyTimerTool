@@ -17,8 +17,8 @@ namespace TeensyTimerTool
 
         inline errorCode trigger(uint32_t) override;
         inline errorCode trigger(float) override;
-        inline void setPeriod(uint32_t) {}
-        inline float getMaxPeriod() override;
+        // inline void setPeriod(uint32_t) {}
+        inline float getMaxPeriod() const override;
 
         bool isPeriodic;
 
@@ -95,7 +95,7 @@ namespace TeensyTimerTool
         return errorCode::OK;
     }
 
-    float GptChannel::getMaxPeriod()
+    float GptChannel::getMaxPeriod() const
     {
         uint32_t pid_clock_mhz = (CCM_CSCMR1 & CCM_CSCMR1_PERCLK_CLK_SEL) ? 24 : (F_BUS_ACTUAL / 1000000);
         return  (float) 0xFFFF'FFFE / pid_clock_mhz;
