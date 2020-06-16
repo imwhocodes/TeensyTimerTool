@@ -145,7 +145,7 @@ namespace TeensyTimerTool
             {
                 this->triggered = false;
                 this->periodic = periodic;
-                this->currentPeriod = periodToCPUCycles(period);
+                this->currentPeriod = microsecondToCPUCycles(period);
 
                 this->nextPeriod = this->currentPeriod;
                 this->callback = cb;
@@ -170,7 +170,7 @@ namespace TeensyTimerTool
             inline errorCode trigger(uint32_t delay) // µs
             {
                 this->startCNT = ARM_DWT_CYCCNT;
-                this->nextPeriod = periodToCPUCycles(delay);
+                this->nextPeriod = microsecondToCPUCycles(delay);
                 this->currentPeriod = this->nextPeriod - 68; //??? compensating for cycles spent computing?
 
                 this->triggered = true;
@@ -183,14 +183,18 @@ namespace TeensyTimerTool
                 return CPUCyclesToMicroseond(0xFFFF'FFFF);
             }
 
-            inline void setCurrentPeriod(uint32_t microSeconds)
+            inline errorCode setCurrentPeriod(uint32_t microSeconds)
             {
                 this->currentPeriod = microsecondToCPUCycles(microSeconds);
+
+                return errorCode::OK;
             }
 
-            inline void setNextPeriod(uint32_t microSeconds)
+            inline errorCode setNextPeriod(uint32_t microSeconds)
             {
                 this->nextPeriod = microsecondToCPUCycles(microSeconds);
+
+                return errorCode::OK;
             }
 
 

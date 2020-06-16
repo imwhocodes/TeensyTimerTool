@@ -20,16 +20,16 @@ namespace TeensyTimerTool
             inline errorCode trigger(float tcnt) override;
 
             inline float getMaxPeriod(void) override;
-            inline uint32_t getCurrentPeriod(void) override {}
-            inline uint32_t getNextPeriod(void) override {}
+            inline uint32_t getCurrentPeriod(void) override;
+            inline uint32_t getNextPeriod(void) override;
 
-            inline errorCode setCurrentPeriod(uint32_t us) override {}
-            inline errorCode setNextPeriod(uint32_t us) override {}
+            inline errorCode setCurrentPeriod(uint32_t us) override;
+            inline errorCode setNextPeriod(uint32_t us) override;
             
             inline void setPrescaler(uint32_t psc); // psc 0..7 -> prescaler: 1..128
 
-            inline uint32_t microsecondToCounter(const uint32_t us) const;
-            inline uint32_t counterToMicrosecond(const uint32_t cnt) const;
+            inline float_t microsecondToCounter(const float_t us) const;
+            inline float_t counterToMicrosecond(const float_t cnt) const;
 
 
         protected:
@@ -57,11 +57,11 @@ namespace TeensyTimerTool
         return begin(cb, (float)tcnt, periodic);
     }
 
-    uint32_t TMRChannel::microsecondToCounter(const uint32_t us){
-        return us * (150.0f / pscValue);
+    float_t TMRChannel::microsecondToCounter(const float_t us) const {
+        return us * 150.0f / pscValue;
     }
 
-    uint32_t TMRChannel::counterToMicrosecond(const uint32_t cnt){
+    float_t TMRChannel::counterToMicrosecond(const float_t cnt) const {
         return cnt * pscValue / 150.0f;
     }
 
@@ -140,7 +140,7 @@ namespace TeensyTimerTool
     }
 
     errorCode TMRChannel::setCurrentPeriod(uint32_t us){
-        const float_t t = microsecondToCounter(tcnt);
+        const float_t t = microsecondToCounter(us);
 
         if(t <= 0xFFFF){
             const uint16_t reload = (uint16_t)t;
@@ -162,10 +162,10 @@ namespace TeensyTimerTool
 
     errorCode TMRChannel::setNextPeriod(uint32_t us)
     {
-        const float_t t = microsecondToCounter(tcnt);
+        const float_t t = microsecondToCounter(us);
 
         if(t <= 0xFFFF){
-            const uint16_t reload = uint16_t)t;
+            const uint16_t reload = (uint16_t)t;
             regs->CMPLD1 = reload;
             return errorCode::OK;
         }

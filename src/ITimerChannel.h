@@ -6,6 +6,11 @@ namespace TeensyTimerTool
 {
     class ITimerChannel
     {
+
+        protected:
+            inline ITimerChannel(callback_t* cbStorage = nullptr);
+            callback_t* pCallback;
+
         public:
             virtual errorCode begin(callback_t callback, uint32_t period, bool oneShot) = 0;
             virtual errorCode begin(callback_t callback, float period, bool oneShot) { return postError(errorCode::wrongType); };
@@ -15,8 +20,8 @@ namespace TeensyTimerTool
 
             virtual float getMaxPeriod(){ postError(errorCode::notImplemented); return 0;};
 
-            virtual errorCode setCurrentPeriod(uint32_t microSeconds) {postError(errorCode::notImplemented);}
-            virtual errorCode setNextPeriod(uint32_t microSeconds) {postError(errorCode::notImplemented);}
+            virtual errorCode setCurrentPeriod(uint32_t microSeconds) { return postError(errorCode::notImplemented); }
+            virtual errorCode setNextPeriod(uint32_t microSeconds) { return postError(errorCode::notImplemented); }
 
             virtual uint32_t getCurrentPeriod() { return 0; }
             virtual uint32_t getNextPeriod() { return 0; }
@@ -25,9 +30,7 @@ namespace TeensyTimerTool
             virtual errorCode stop() { return errorCode::OK; }
             inline void setCallback(callback_t);
 
-        protected:
-            inline ITimerChannel(callback_t* cbStorage = nullptr);
-            callback_t* pCallback;
+
     };
 
     // IMPLEMENTATION ====================================================
